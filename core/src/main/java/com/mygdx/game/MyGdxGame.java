@@ -28,9 +28,6 @@ public class MyGdxGame extends Game {
         super.render(); // Delegates to active screen
     }
 
-    /**
-     * Disposes shared resources.
-     */
     @Override
     public void dispose() {
         batch.dispose();
