@@ -10,9 +10,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
-/**
- * Main game screen where player avoids enemies and reaches the magic circle.
- */
 public class GameScreen implements Screen {
     private final MyGdxGame game;
 
@@ -22,35 +19,32 @@ public class GameScreen implements Screen {
     private Texture goalTexture;
 
     private Vector2 playerPos;
-    private Rectangle playerBounds;
     private Rectangle goalBounds;
 
     private static final float PLAYER_SPEED = 200f;
-    private static final float ENEMY_SPEED = 100f;
+    private static final float PLAYER_SCALE = 0.2f;
+    private static final float ENEMY_SCALE = 0.2f;
+    private static final float GOAL_SCALE = 0.4f;
 
     private Array<Enemy> enemies;
     private float enemySpawnTimer;
-    private float enemySpawnInterval = 2f; // seconds
+    private float enemySpawnInterval = 2f;
 
-    /**
-     * Constructs the main game screen.
-     * @param game Main game reference
-     */
     public GameScreen(MyGdxGame game) {
         this.game = game;
 
-        background = new Texture("background.png");
+        background = new Texture("background2.png");
         playerTexture = new Texture("player.png");
         enemyTexture = new Texture("enemy.png");
-        goalTexture = new Texture("magic.png");
+        goalTexture = new Texture("aim.png");
 
         playerPos = new Vector2(100, 100);
-        playerBounds = new Rectangle(playerPos.x, playerPos.y, playerTexture.getWidth(), playerTexture.getHeight());
 
-        // Place goal at lower right corner
-        float goalX = Gdx.graphics.getWidth() - 120;
+        float goalW = goalTexture.getWidth() * GOAL_SCALE;
+        float goalH = goalTexture.getHeight() * GOAL_SCALE;
+        float goalX = Gdx.graphics.getWidth() - goalW - 20;
         float goalY = 50;
-        goalBounds = new Rectangle(goalX, goalY, goalTexture.getWidth(), goalTexture.getHeight());
+        goalBounds = new Rectangle(goalX, goalY, goalW, goalH);
 
         enemies = new Array<>();
     }
@@ -64,48 +58,61 @@ public class GameScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.batch.draw(goalTexture, goalBounds.x, goalBounds.y);
-        game.batch.draw(playerTexture, playerPos.x, playerPos.y);
+        game.batch.draw(goalTexture, goalBounds.x, goalBounds.y, goalBounds.width, goalBounds.height);
+        game.batch.draw(playerTexture, playerPos.x, playerPos.y,
+                playerTexture.getWidth() * PLAYER_SCALE, playerTexture.getHeight() * PLAYER_SCALE);
 
         for (Enemy e : enemies) {
-            game.batch.draw(enemyTexture, e.position.x, e.position.y);
+            game.batch.draw(enemyTexture, e.position.x, e.position.y,
+                    enemyTexture.getWidth() * ENEMY_SCALE, enemyTexture.getHeight() * ENEMY_SCALE);
         }
+
         game.batch.end();
     }
 
-    /**
-     * Handles player input, enemy logic, and collision.
-     */
     private void update(float delta) {
         handleInput(delta);
 
-        // Spawn new enemies
         enemySpawnTimer += delta;
         if (enemySpawnTimer >= enemySpawnInterval) {
-            enemies.add(new Enemy(enemyTexture.getWidth(), enemyTexture.getHeight()));
+            enemies.add(new Enemy(enemyTexture.getWidth(), enemyTexture.getHeight(), playerPos));
             enemySpawnTimer = 0;
         }
 
-        // Update enemies and check collision
-        Rectangle playerRect = new Rectangle(playerPos.x, playerPos.y, playerTexture.getWidth(), playerTexture.getHeight());
+        float playerW = playerTexture.getWidth() * PLAYER_SCALE;
+        float playerH = playerTexture.getHeight() * PLAYER_SCALE;
+
+        float playerCenterX = playerPos.x + playerW / 2f;
+        float playerCenterY = playerPos.y + playerH / 2f;
+        float playerRadius = playerW / 2f;
+
+        Vector2 playerCenter = new Vector2(playerCenterX, playerCenterY);
+
         for (Enemy e : enemies) {
             e.update(delta, playerPos);
-            if (playerRect.overlaps(e.getBounds())) {
-                System.out.println("Game Over");
+
+            float enemyW = enemyTexture.getWidth() * ENEMY_SCALE;
+            float enemyH = enemyTexture.getHeight() * ENEMY_SCALE;
+            float enemyCenterX = e.position.x + enemyW / 2f;
+            float enemyCenterY = e.position.y + enemyH / 2f;
+            float enemyRadius = enemyW / 2f;
+
+            Vector2 enemyCenter = new Vector2(enemyCenterX, enemyCenterY);
+
+            float distance = playerCenter.dst(enemyCenter);
+
+            if (distance < playerRadius + enemyRadius * 0.8f) {
                 game.setScreen(new GameOverScreen(game));
+                return;
             }
         }
 
-        // Check if player reached goal
+        Rectangle playerRect = new Rectangle(playerPos.x, playerPos.y, playerW, playerH);
         if (playerRect.overlaps(goalBounds)) {
-            System.out.println("Reached goal. MiniGame unlocked!");
             game.setScreen(new MiniGameScreen(game));
         }
     }
 
-    /**
-     * Handles WASD/arrow key movement, clamped to screen.
-     */
     private void handleInput(float delta) {
         float moveX = 0;
         float moveY = 0;
@@ -115,7 +122,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) moveX -= 1;
         if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) moveX += 1;
 
-        float length = (float)Math.sqrt(moveX * moveX + moveY * moveY);
+        float length = (float) Math.sqrt(moveX * moveX + moveY * moveY);
         if (length > 0) {
             moveX /= length;
             moveY /= length;
@@ -124,8 +131,11 @@ public class GameScreen implements Screen {
         playerPos.x += moveX * PLAYER_SPEED * delta;
         playerPos.y += moveY * PLAYER_SPEED * delta;
 
-        playerPos.x = MathUtils.clamp(playerPos.x, 0, Gdx.graphics.getWidth() - playerTexture.getWidth());
-        playerPos.y = MathUtils.clamp(playerPos.y, 0, Gdx.graphics.getHeight() - playerTexture.getHeight());
+        float maxX = Gdx.graphics.getWidth() - playerTexture.getWidth() * PLAYER_SCALE;
+        float maxY = Gdx.graphics.getHeight() - playerTexture.getHeight() * PLAYER_SCALE;
+
+        playerPos.x = MathUtils.clamp(playerPos.x, 0, maxX);
+        playerPos.y = MathUtils.clamp(playerPos.y, 0, maxY);
     }
 
     @Override public void resize(int width, int height) {}
@@ -142,3 +152,4 @@ public class GameScreen implements Screen {
         goalTexture.dispose();
     }
 }
+
