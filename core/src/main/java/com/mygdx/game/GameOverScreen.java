@@ -13,6 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+
+/**
+ * GameOverScreen is shown when the player loses the game.
+ * It displays a game over image and provides buttons to restart or exit the game.
+ */
 public class GameOverScreen implements Screen {
 
     private final MyGdxGame game;
@@ -25,6 +30,10 @@ public class GameOverScreen implements Screen {
     private ImageButton restartButton;
     private ImageButton exitButton;
 
+    /**
+     * Constructs the GameOverScreen and initializes all UI elements.
+     * @param game Reference to the main game instance.
+     */
     public GameOverScreen(MyGdxGame game) {
         this.game = game;
 
@@ -82,7 +91,10 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void show() {}
-
+    /**
+     * Renders the Game Over screen.
+     * @param delta Time since the last frame.
+     */
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.2f, 0, 0, 1);
@@ -90,7 +102,11 @@ public class GameOverScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
-
+     /**
+     * Updates the viewport size when the screen is resized.
+     * @param width New screen width.
+     * @param height New screen height.
+     */
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
@@ -99,7 +115,9 @@ public class GameOverScreen implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-
+    /**
+     * Releases all assets and resources.
+     */
     @Override
     public void dispose() {
         stage.dispose();

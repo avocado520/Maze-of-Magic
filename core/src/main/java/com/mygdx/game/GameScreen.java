@@ -6,12 +6,17 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.audio.Sound;
 
+/**
+ * The main gameplay screen, handling movement, enemies, shooting, and collision detection.
+ */
 public class GameScreen implements Screen {
     private final MyGdxGame game;
 
@@ -40,6 +45,13 @@ public class GameScreen implements Screen {
     private int worldWidth;
     private int worldHeight;
 
+    private Sound shootSound,loseSound;
+
+
+    /**
+     * Constructor for the gameplay screen.
+     * @param game Main game instance
+     */
     public GameScreen(MyGdxGame game) {
         this.game = game;
 
@@ -48,6 +60,9 @@ public class GameScreen implements Screen {
         enemyTexture = new Texture("enemy.png");
         goalTexture = new Texture("aim.png");
         starTexture = new Texture("star.png");
+
+        shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.mp3"));
+        loseSound = Gdx.audio.newSound(Gdx.files.internal("lose.wav"));
 
         worldWidth = background.getWidth() * 2;
         worldHeight = background.getHeight() * 2;
@@ -93,7 +108,10 @@ public class GameScreen implements Screen {
 
         game.batch.end();
     }
-
+    /**
+     * Updates all game logic each frame: enemy spawning, collisions, camera tracking.
+     * @param delta Time since last frame.
+     */
     private void update(float delta) {
         handleInput(delta);
 
@@ -116,7 +134,8 @@ public class GameScreen implements Screen {
             Vector2 enemyCenter = new Vector2(e.position.x + enemyW / 2f, e.position.y + enemyH / 2f);
             float distance = playerCenter.dst(enemyCenter);
 
-            if (distance < playerW / 2 + enemyW / 2 * 0.8f) {
+            if (distance < (playerW + enemyW) / 2 * 0.8f) {
+                loseSound.play();
                 game.setScreen(new GameOverScreen(game));
                 return;
             }
@@ -151,7 +170,10 @@ public class GameScreen implements Screen {
         float camY = MathUtils.clamp(playerPos.y, camera.viewportHeight / 2f, worldHeight - camera.viewportHeight / 2f);
         camera.position.set(camX, camY, 0);
     }
-
+    /**
+     * Handles user input for movement and shooting.
+     * @param delta Time since last frame.
+     */
     private void handleInput(float delta) {
         float moveX = 0, moveY = 0;
 
@@ -177,14 +199,11 @@ public class GameScreen implements Screen {
         if (Gdx.input.justTouched()) {
             Vector3 click = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(click);
-
-            Vector2 start = new Vector2(
-                playerPos.x + playerTexture.getWidth() * PLAYER_SCALE / 2f,
-                playerPos.y + playerTexture.getHeight() * PLAYER_SCALE / 2f
-            );
-
+            Vector2 start = new Vector2(playerPos.x + playerTexture.getWidth() * PLAYER_SCALE / 2f,
+                    playerPos.y + playerTexture.getHeight() * PLAYER_SCALE / 2f);
             Vector2 target = new Vector2(click.x, click.y);
             stars.add(new Star(start, target, starTexture));
+            shootSound.play();
         }
     }
 
@@ -194,6 +213,9 @@ public class GameScreen implements Screen {
     @Override public void hide() {}
     @Override public void show() {}
 
+    /**
+     * Releases all assets and resources.
+     */
     @Override
     public void dispose() {
         background.dispose();
@@ -201,5 +223,7 @@ public class GameScreen implements Screen {
         enemyTexture.dispose();
         goalTexture.dispose();
         starTexture.dispose();
+        shootSound.dispose();
+        loseSound.dispose();
     }
 }

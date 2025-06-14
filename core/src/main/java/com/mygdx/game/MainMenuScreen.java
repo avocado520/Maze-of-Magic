@@ -88,7 +88,9 @@ public class MainMenuScreen implements Screen {
     @Override public void resume() {}
     @Override public void hide() {}
     @Override public void show() {}
-
+    /**
+     * Releases all assets and resources.
+     */
     @Override
     public void dispose() {
         background.dispose();

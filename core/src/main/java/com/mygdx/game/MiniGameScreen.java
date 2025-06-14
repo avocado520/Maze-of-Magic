@@ -21,9 +21,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.audio.Sound;
+
 
 import java.util.ArrayList;
-
+/**
+ * MiniGameScreen displays a mini-game where players must click buttons in a correct sequence.
+ * Upon success, a win image and sound are shown, and the player can exit the game.
+ */
 public class MiniGameScreen implements Screen {
     private final MyGdxGame game;
     private Stage stage;
@@ -38,6 +43,12 @@ public class MiniGameScreen implements Screen {
     private Image winDisplay;
     private ImageButton exitButton;
 
+    private Sound winSound;
+
+    /**
+     * Constructs the MiniGameScreen, initializes UI elements and loads assets.
+     * @param game Reference to the main game class.
+     */
     public MiniGameScreen(MyGdxGame game) {
         this.game = game;
         stage = new Stage(new ScreenViewport());
@@ -46,6 +57,8 @@ public class MiniGameScreen implements Screen {
         background = new Texture("background3.png");
         winImage = new Texture("you win.png");
         exitTexture = new Texture("exit.png");
+
+        winSound = Gdx.audio.newSound(Gdx.files.internal("win.wav"));
 
         Skin skin = new Skin();
         BitmapFont font = new BitmapFont();
@@ -118,7 +131,10 @@ public class MiniGameScreen implements Screen {
         });
         stage.addActor(exitButton);
     }
-
+    /**
+     * Handles button clicks in the mini-game. If the correct sequence is entered, it shows the win image and exits.
+     * @param selected Index of the clicked button.
+     */
     private void handleInput(int selected) {
         userInput.add(selected);
 
@@ -135,15 +151,20 @@ public class MiniGameScreen implements Screen {
                 winDisplay.setVisible(true);
                 exitButton.setVisible(true);
                 mainTable.setVisible(false);
+                winSound.play(); 
             } else {
                 userInput.clear();
             }
         }
     }
 
+
     @Override
     public void show() {}
-
+    /**
+     * Renders the background and UI each frame.
+     * @param delta Time since the last frame.
+     */
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0.1f, 1);
@@ -157,7 +178,11 @@ public class MiniGameScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
-
+    /**
+     * Called when the screen is resized.
+     * @param width New width.
+     * @param height New height.
+     */
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
@@ -166,12 +191,15 @@ public class MiniGameScreen implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-
+    /**
+     * Releases all assets and resources.
+     */
     @Override
     public void dispose() {
         stage.dispose();
         background.dispose();
         winImage.dispose();
         exitTexture.dispose();
+        winSound.dispose();
     }
 }

@@ -27,7 +27,9 @@ public class MyGdxGame extends Game {
     public void render() {
         super.render(); // Delegates to active screen
     }
-
+    /**
+     * Releases all assets and resources.
+     */
     @Override
     public void dispose() {
         batch.dispose();
