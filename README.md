@@ -1,35 +1,56 @@
-# 	MazeOfMagic
+# Maze of Magic
+Maze of Magic is a 2D top-down action game built with **LibGDX**. The game combines exploration, combat, and a mini-game challenge.    Players navigate a mysterious maze, avoid ghost enemies, shoot magic stars, and reach the glowing magic circle to enter a puzzle-based mini-game. The game features two distinct gameplay styles and is designed for casual gamers who enjoy fast-paced reflexes and light puzzle-solving.
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+## Team Members and Contributions
+### Zhuoliang Xie
+- Designed and implemented:
+- MiniGameScreen.java
+- GameOverScreen.java with Restart and Exit buttons
+- Win logic and animation screen
+- Sound effects: win, lose, and shooting
+- Basic UI integration and asset setup
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+### Jiayi Hou
+- Designed and implemented:
+- GameScreen.java: player movement, camera follow, star shooting
+- Enemy.java: enemy AI, collision logic
+- MainMenuScreen.java: background, title, Start and Exit buttons
+- Collision detection, win/lose conditions, game loop logic
+- Basic UI integration and asset setup
 
-## Platforms
+## Game Features
+- Free movement system with camera following the player
+- Enemies spawn from all sides and chase the player
+- Players can shoot projectiles (stars) by clicking
+- Collision with enemy causes Game Over
+- Reaching the goal triggers a mini-game
+- Mini-game requires clicking colored buttons in the correct order
+- Sound effects for win, lose, and shooting
+- Start screen, Game Over screen, and restart functionality
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
-- `android`: Android mobile platform. Needs Android SDK.
+### Main Game
+- **Move**: Use arrow keys (↑/↓/←/→) to move the player
+- **Shoot**: Click anywhere on the screen to shoot a star
+- **Objective**: Avoid ghosts and reach the glowing magic circle to enter the Mini Game
 
-## Gradle
+### Mini Game
+- **Interaction**: Click on the colored buttons in the correct order
+- **Round System**: Each round consists of **4 button clicks**
+- If the correct sequence is entered, a **You Win** image appears, and the **Exit** button becomes clickable
+- If the sequence is incorrect, the round resets and the player can retry
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+### Game Over
+- **Restart**: Click the **Restart** button to replay the game
+- **Exit**: Click the **Exit** button to quit
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `android:lint`: performs Android project validation.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+### Requirements
+- Android Studio
+- JDK 8 or higher
+- Gradle (included via wrapper)
+- Android SDK (target API 30)
+- Emulator: Pixel 2
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+## License and Assets
+- Game assets used are either:
+- Created by the team
+- Licensed for free commercial use
